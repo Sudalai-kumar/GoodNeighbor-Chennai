@@ -2,6 +2,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
+import os
 from database import engine
 import models
 from routers import impact, auth, requests, uploads, chat
@@ -24,15 +25,20 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# ── CORS — allow React dev server ─────────────────────────────────────────────
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=[
+# ── CORS — allow configured origins ──────────────────────────────────────────
+allowed_origins = os.getenv("ALLOWED_ORIGINS", "").split(",")
+# Default for local dev if not set
+if not any(allowed_origins):
+    allowed_origins = [
         "http://localhost:5173", 
         "http://localhost:3000",
         "http://127.0.0.1:5173",
         "http://127.0.0.1:3000"
-    ],
+    ]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

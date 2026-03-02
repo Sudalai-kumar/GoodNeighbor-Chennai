@@ -5,7 +5,9 @@ from sqlalchemy.orm import sessionmaker
 import os
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-SQLALCHEMY_DATABASE_URL = f"sqlite:///{os.path.join(BASE_DIR, 'p2p.db')}"
+# Check for environment variable (Production), otherwise fallback to local SQLite
+default_db = f"sqlite:///{os.path.join(BASE_DIR, 'p2p.db')}"
+SQLALCHEMY_DATABASE_URL = os.getenv("DATABASE_URL", default_db)
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False}
